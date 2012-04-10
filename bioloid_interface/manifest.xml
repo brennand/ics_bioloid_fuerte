@@ -1,0 +1,16 @@
+<package>
+  <description brief="bioloid_interface">
+
+     bioloid_interface
+
+  </description>
+  <author>Brennand Pierce</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bioloid_interface</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+
+</package>
+
+
