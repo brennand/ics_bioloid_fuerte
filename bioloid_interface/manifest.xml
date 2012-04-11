@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/bioloid_interface</url>
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
+  <depend package="motor_msg"/>
 
 </package>
 
