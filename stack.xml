@@ -1,0 +1,10 @@
+<stack>
+  <description brief="ics_bioloid">ics_bioloid</description>
+  <author>Maintained by Brennand Pierce</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ics_bioloid</url>
+  <depend stack="ros" />
+  <depend stack="ros_comm" /> <!-- std_msgs, roscpp -->
+
+</stack>
