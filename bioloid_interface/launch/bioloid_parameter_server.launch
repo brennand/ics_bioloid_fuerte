@@ -1,0 +1,14 @@
+<launch>
+  <rosparam ns="/bioloid/joints">
+    name:                   [  'H_NR',     'H_NT',      'H_NP']
+
+    Servo_number:           [       0,          1,           2] 
+
+    joint_encoder_offset:   [     500,        500,         500] 
+
+    angle_max:              [     1.0,        1.0,         1.0]    
+    angle_min:              [    -1.0,       -1.0,        -1.0] 
+     
+  </rosparam>
+
+</launch>
