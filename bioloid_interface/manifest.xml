@@ -9,9 +9,8 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/bioloid_interface</url>
   <depend package="roscpp"/>
-  <depend package="std_msgs"/>
-  <depend package="motor_msg"/>
-
+  <depend package="sensor_msgs"/>
+  
 </package>
 
 
