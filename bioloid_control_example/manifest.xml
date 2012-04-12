@@ -1,0 +1,14 @@
+<package>
+  <description brief="bioloid_control_example">
+
+     bioloid_control_example
+
+  </description>
+  <author>Brennand Pierce</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bioloid_control_example</url>
+
+</package>
+
+
