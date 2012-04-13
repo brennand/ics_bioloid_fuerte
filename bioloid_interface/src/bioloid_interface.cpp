@@ -31,8 +31,6 @@ void getParamVector_string(ros::NodeHandle, string,vector<std::string> *);
 
 bool init_dynamixel();
 
-//void desiredCallback(const sensor_msgs::JointState::ConstPtr& msg){
-
 //definition of the bits set in the dynamixels ( see Robotis Dynamixel Wiki )
 
 #define P_ID   								3
@@ -59,7 +57,7 @@ bool init_dynamixel();
 
 //Values from the para server.
 std::vector<std::string> name;					//Stores joint names
-std::vector<int> Servo_number;					//The servo number, used to communicate with servo
+std::vector<int> servo_number;					//The servo number, used to communicate with servo
 std::vector<int> joint_encoder_offset;	//The offset of the servo to make the standard home poistion
 std::vector<double> angle_max;					//Max angle, this coulde be used to limit the range of motor
 std::vector<double> angle_min;					//Min angle, this coulde be used to limit the range of motor
@@ -78,21 +76,39 @@ std::vector<double> raw_eff;	//not used yet, could get motor current.
 bool torque = true; // this turns the motors on and off;  
 int number_of_joints;
 
-//This function is called when we recieve a desired message, in the case of the bioloid this is rad or rad/s
+	/******************************************************************
+	*
+  * 			This function is called when we recieve a desired message, in 
+  *				the case of the bioloid this is rad or rad/s
+  *
+  ******************************************************************/
+
 void desiredCallback(const sensor_msgs::JointState::ConstPtr& msg){
 
 	
 	for (int i = 0 ; i < number_of_joints; i++){
-	
+
+		/******************************************************************
+	  * 				Check to see if the desired rad is in the max - min range
+	  ******************************************************************/
+
+		double pos_rad = msg->position.at(i);
+
+		if(pos_rad > angle_max.at(i)){
+			pos_rad = angle_max.at(i);
+		}else if(pos_rad < angle_min.at(i)){
+			pos_rad = angle_min.at(i);
+		}
+
 		/******************************************************************
 	  * 				Convert the real numbers into ticks for servos.
 	  ******************************************************************/
 	
 		int v = (int)(msg->velocity.at(i) RADPSEC2TICKSPSEC);	//We recieve rad/s, we convert to tick/s.
-		int p = (int)(msg->position.at(i) RAD2TICK);					//We recieve rad, we convert to ticks.
+		int p = (int)(pos_rad RAD2TICK);					//We recieve rad, we convert to ticks.
 
 		/******************************************************************
-	  * 				Make sure the desired are in range.
+	  * 				Make sure It's in the range of the servo.
 	  ******************************************************************/
 		
 		//now make sure it's in range.
@@ -117,7 +133,13 @@ void desiredCallback(const sensor_msgs::JointState::ConstPtr& msg){
 
 }
 
-//Main loop.
+	/******************************************************************
+	*
+  * 			Main loop.
+  *
+  ******************************************************************/
+
+
 int main(int argc, char **argv)
 {  
   ros::init(argc, argv, "bioloid_interface");
@@ -129,23 +151,22 @@ int main(int argc, char **argv)
   ros::Subscriber sub = n.subscribe("command", 1000, desiredCallback);
 
 	/******************************************************************
-	*
   * 			Get all the variables from the parameter server.
-  *
   ******************************************************************/
 
   getParamVector_string(n,"/bioloid/joints/name",&name);
     
-  getParamVector_int(n,"/bioloid/joints/Servo_number",&Servo_number);
+  getParamVector_int(n,"/bioloid/joints/servo_number",&servo_number);
   getParamVector_int(n,"/bioloid/joints/joint_encoder_offset",&joint_encoder_offset);
 
   getParamVector_double(n,"/bioloid/joints/angle_max",&angle_max);     
   getParamVector_double(n,"/bioloid/joints/angle_min",&angle_min); 
     
+	// Make the code more readable by using number_of_joints for loops.
+	number_of_joints = name.size(); 
+    
 	/******************************************************************
-	*
   * 			Connect to bioloid
-  *
   ******************************************************************/
 
 	if(init_dynamixel() == true){
@@ -155,15 +176,12 @@ int main(int argc, char **argv)
 			return 0;
 	}
 
-
 	/******************************************************************
-	*
   * 			Setup ROS
-  *
   ******************************************************************/
 
   //Communicate at 200hz
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(200);
   //Initialice the time.
   ros::Time::init();
 	//ROS counter
@@ -172,10 +190,10 @@ int main(int argc, char **argv)
   ROS_INFO("Number of joints: %d", int(number_of_joints));
   ROS_INFO("bioloid interface started.");
 
-	//create the correct size vectors for the info
+	/******************************************************************
+  * 			Initialize all the vectors so that number of joints = vector size.
+  ******************************************************************/
 
-	number_of_joints = name.size(); // Make the code more readable by using number_of_joints for loops.
-	
 	pos.clear();
  	vel.clear();
  	eff.clear();
@@ -206,8 +224,6 @@ int main(int argc, char **argv)
   *
   ******************************************************************/
 
-
-
   while (ros::ok())
   {
     //Send Joint states
@@ -226,12 +242,12 @@ int main(int argc, char **argv)
 		
 			//Get raw position from dynamixel
 			do{
-				raw_pos.at(i) = (double)dxl_read_word( Servo_number.at(i), P_PRESENT_POSITION_L);
+				raw_pos.at(i) = (double)dxl_read_word( servo_number.at(i), P_PRESENT_POSITION_L);
 			}while(dxl_get_result( ) != COMM_RXSUCCESS );
 			
 			//get raw velocity from dynamixel
 			do{
-				raw_vel.at(i) = (double)dxl_read_word(Servo_number.at(i), P_PRESENT_SPEED_L);
+				raw_vel.at(i) = (double)dxl_read_word(servo_number.at(i), P_PRESENT_SPEED_L);
 			}while(dxl_get_result( ) != COMM_RXSUCCESS );
 				
 			//Work out if vel direction, 
@@ -256,11 +272,11 @@ int main(int argc, char **argv)
 			for (int i = 0 ; i < number_of_joints  ; i++){
 	
 				do{
-					dxl_write_word( Servo_number.at(i), P_GOAL_SPEED_L,(unsigned)des_vel.at(i));
+					dxl_write_word( servo_number.at(i), P_GOAL_SPEED_L,(unsigned)des_vel.at(i));
 				}while(dxl_get_result( ) != COMM_RXSUCCESS );
 	       
 				do{
-					dxl_write_word( Servo_number.at(i), P_GOAL_POSITION_L, (unsigned)(des_pos.at(i)+joint_encoder_offset.at(i)));
+					dxl_write_word( servo_number.at(i), P_GOAL_POSITION_L, (unsigned)(des_pos.at(i)+joint_encoder_offset.at(i)));
 				}while(dxl_get_result( ) != COMM_RXSUCCESS );
 	
 			}
@@ -306,7 +322,12 @@ int main(int argc, char **argv)
   return 0;
 }
 
-// try and connect to the bioloid if succesful return true, other wish return false.
+
+	/******************************************************************
+  *
+  * 				try and connect to the bioloid if succesful return true, other wish return false.
+  *
+  ******************************************************************/
 
 bool init_dynamixel(){
 	
@@ -334,9 +355,11 @@ bool init_dynamixel(){
 	
 }
 
-
-
-// Next three functions returns the paramenter server value.
+	/******************************************************************
+  *
+  * 				Next three functions returns the paramenter server value.
+  *
+  ******************************************************************/
 
 void getParamVector_string(ros::NodeHandle n, string Var,vector<std::string> *Vec){
  
