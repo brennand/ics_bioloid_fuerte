@@ -1,4 +1,4 @@
 <launch>
+    	<include file="$(find bioloid_interface)/launch/bioloid_para_Type_A.launch"/>
 			<node name="bioloid_interface" pkg="bioloid_interface" type="bioloid_interface"  output="screen"/>
-    	<include file="$(find bioloid_interface)/launch/bioloid_parameter_server.launch"/>
 </launch>
