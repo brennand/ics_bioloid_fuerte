@@ -26,7 +26,6 @@ int dxl_initialize(int deviceIndex, int baudnum )
 
 	gbCommStatus = COMM_RXSUCCESS;
 	giBusUsing = 0;
-	printf("dxl_initialize finished\n");
 	return 1;
 }
 
