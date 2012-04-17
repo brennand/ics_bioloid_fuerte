@@ -1,0 +1,9 @@
+<launch>
+        <param name="robot_description" command="cat $(find bioloid_interface)/urdf/TypeA.xml" />
+    <node pkg="robot_state_publisher" type="state_publisher" name="rob_st_pub" >
+
+
+    </node>
+
+</launch>
+
