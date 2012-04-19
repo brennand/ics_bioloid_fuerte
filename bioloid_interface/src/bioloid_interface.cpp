@@ -86,8 +86,11 @@ std::vector<int> joint_encoder_offset;	//The offset of the servo to make the sta
 std::vector<double> angle_max;					//Max angle, this coulde be used to limit the range of motor
 std::vector<double> angle_min;					//Min angle, this coulde be used to limit the range of motor
 //Vales to send to the bioloid:
-std::vector<int> des_pos; 	//rad
-std::vector<int> des_vel;	//rad/s
+std::vector<int> des_pos; 	//tick
+std::vector<int> des_vel;	//tick/s
+
+std::vector<double> des_pos_rad; //rad
+std::vector<double> des_vel_rad; //rad/s
 //Values to publish:
 std::vector<double> pos;	//rad
 std::vector<double> vel;	//rad/s
@@ -97,8 +100,11 @@ std::vector<double> raw_pos;	//tick
 std::vector<double> raw_vel;	//tick/s
 std::vector<double> raw_eff;	//not used yet, could get motor current.
 
+
+
 bool torque = true; // this turns the motors on and off;  
 int number_of_joints;
+bool sim;
 
 	/******************************************************************
 	*
@@ -109,14 +115,16 @@ int number_of_joints;
 
 void desiredCallback(const sensor_msgs::JointState::ConstPtr& msg){
 
-	
+	des_pos_rad = msg->position; //rad
+	des_vel_rad = msg->velocity; //rad/s	
+
 	for (int i = 0 ; i < number_of_joints; i++){
 
 		/******************************************************************
 	  * 				Check to see if the desired rad is in the max - min range
 	  ******************************************************************/
 
-		double pos_rad = msg->position.at(i);
+		double pos_rad = des_pos_rad.at(i);
 
 		if(pos_rad > angle_max.at(i)){
 			pos_rad = angle_max.at(i);
@@ -128,7 +136,7 @@ void desiredCallback(const sensor_msgs::JointState::ConstPtr& msg){
 	  * 				Convert the real numbers into ticks for servos.
 	  ******************************************************************/
 	
-		int v = (int)(msg->velocity.at(i) RADPSEC2TICKSPSEC);	//We recieve rad/s, we convert to tick/s.
+		int v = (int)(des_vel_rad.at(i) RADPSEC2TICKSPSEC);	//We recieve rad/s, we convert to tick/s.
 		int p = (int)(pos_rad RAD2TICK);					//We recieve rad, we convert to ticks.
 
 		/******************************************************************
@@ -185,6 +193,11 @@ int main(int argc, char **argv)
 
   getParamVector_double(n,"/bioloid/joints/angle_max",&angle_max);     
   getParamVector_double(n,"/bioloid/joints/angle_min",&angle_min); 
+
+	if(!n.getParam("/bioloid/joints/sim", sim)){
+		ROS_INFO("getPara(sim) failed");
+		sim = true;
+	}
     
 	// Make the code more readable by using number_of_joints for loops.
 	number_of_joints = name.size(); 
@@ -192,14 +205,16 @@ int main(int argc, char **argv)
 	/******************************************************************
   * 			Connect to bioloid
   ******************************************************************/
-
-	if(init_dynamixel() == true){
-			ROS_INFO("connected to bioloid");
-	} else {
-			ROS_INFO("falied to connected bioloid");
-			return 0;
+	if(!sim){
+		if(init_dynamixel() == true){
+				ROS_INFO("connected to bioloid");
+		} else {
+				ROS_INFO("falied to connected bioloid");
+				return 0;
+		}
+	}else{
+		ROS_INFO("In sim model, so map command to state, for joints");
 	}
-
 	/******************************************************************
   * 			Setup ROS
   ******************************************************************/
@@ -261,51 +276,77 @@ int main(int argc, char **argv)
 		/******************************************************************
 	  * 				Get Dynamixel position and speed
 	  ******************************************************************/
-
-		for (int i = 0 ; i < number_of_joints  ; i++){
-		
-			//Get raw position from dynamixel
-			do{
-				raw_pos.at(i) = (double)dxl_read_word( servo_number.at(i), P_PRESENT_POSITION_L);
-			}while(dxl_get_result( ) != COMM_RXSUCCESS );
-			
-			//get raw velocity from dynamixel
-			do{
-				raw_vel.at(i) = (double)dxl_read_word(servo_number.at(i), P_PRESENT_SPEED_L);
-			}while(dxl_get_result( ) != COMM_RXSUCCESS );
-				
-			//Work out if vel direction, 
-			//If a value is in the rage of 0~1023, it means that the motor rotates to the CCW direction.
-			//If a value is in the rage of 1024~2047, it means that the motor rotates to the CW direction.
-
-			if(raw_vel.at(i)  > 1024.0) {
-				raw_vel.at(i) = -(raw_vel.at(i)-1024);
-			}
-	
-			//convert the raw into real number.
-			vel.at(i) = (raw_vel.at(i) TICKSPSEC2RADPSEC );		
-			pos.at(i) = ((raw_pos.at(i)-joint_encoder_offset.at(i)) TICK2RAD );
-		
-		}
-
-		/******************************************************************
-	  * 				Send the desired position to the Dynamixel 
-	  ******************************************************************/
-
-		if(torque) {
+		if(sim){
+			pos = des_pos_rad;
+			vel = des_vel_rad;
+			//ROS_INFO("in sim");
+		}else{
+			//ROS_INFO("connected to robot");
 			for (int i = 0 ; i < number_of_joints  ; i++){
-	
+				//int  watch_dog= 0;
+				//bool done = false;
+			
+				//Get raw position from dynamixel
+
 				do{
-					dxl_write_word( servo_number.at(i), P_GOAL_SPEED_L,(unsigned)des_vel.at(i));
+					raw_pos.at(i) = (double)dxl_read_word(servo_number.at(i), P_PRESENT_POSITION_L);
 				}while(dxl_get_result( ) != COMM_RXSUCCESS );
-	       
+	/*
 				do{
-					dxl_write_word( servo_number.at(i), P_GOAL_POSITION_L, (unsigned)(des_pos.at(i)+joint_encoder_offset.at(i)));
+					int pos_temp = dxl_read_word( servo_number.at(i), P_PRESENT_POSITION_L);
+					if(dxl_get_result( ) == COMM_RXSUCCESS){
+						done = true;
+						watch_dog = 0;
+						raw_pos.at(i) = (double) pos_temp;		
+					
+					}
+					watch_dog ++;			
+					if(watch_dog > 10000)	{
+						done = true;
+						ROS_INFO("interface error, POS, servo %i.", i);
+					}		 
+
+				}while(done);
+	*/
+			
+			
+				//get raw velocity from dynamixel
+				do{
+					raw_vel.at(i) = (double)dxl_read_word(servo_number.at(i), P_PRESENT_SPEED_L);
 				}while(dxl_get_result( ) != COMM_RXSUCCESS );
+				
+				//Work out if vel direction, 
+				//If a value is in the rage of 0~1023, it means that the motor rotates to the CCW direction.
+				//If a value is in the rage of 1024~2047, it means that the motor rotates to the CW direction.
+
+				if(raw_vel.at(i)  > 1024.0) {
+					raw_vel.at(i) = -(raw_vel.at(i)-1024);
+				}
 	
+				//convert the raw into real number.
+				vel.at(i) = (raw_vel.at(i) TICKSPSEC2RADPSEC );		
+				pos.at(i) = ((raw_pos.at(i)-joint_encoder_offset.at(i)) TICK2RAD );
+		
+			}
+
+			/******************************************************************
+			* 				Send the desired position to the Dynamixel 
+			******************************************************************/
+
+			if(torque) {
+				for (int i = 0 ; i < number_of_joints  ; i++){
+	
+					do{
+						dxl_write_word( servo_number.at(i), P_GOAL_SPEED_L,(unsigned)des_vel.at(i));
+					}while(dxl_get_result( ) != COMM_RXSUCCESS );
+			     
+					do{
+						dxl_write_word( servo_number.at(i), P_GOAL_POSITION_L, (unsigned)(des_pos.at(i)+joint_encoder_offset.at(i)));
+					}while(dxl_get_result( ) != COMM_RXSUCCESS );
+	
+				}
 			}
 		}
-	
 		/******************************************************************
 	  * 				Publish the raw and real positon on the joints
 	  ******************************************************************/
@@ -323,6 +364,8 @@ int main(int argc, char **argv)
 
     raw_js_pub.publish(js);
 
+	
+
     ros::spinOnce();
     loop_rate.sleep();
   }
@@ -333,15 +376,16 @@ int main(int argc, char **argv)
   * 				Before exit turn everything off.
   *
   ******************************************************************/
+	if(!sim){
+		//turn the torque of the servo off
+		do{
+			dxl_write_byte( 254, P_TORQUE_ENABLED, 0);
+		}while(dxl_get_result( ) != COMM_RXSUCCESS );
 
-	//turn the torque of the servo off
-	do{
-		dxl_write_byte( 254, P_TORQUE_ENABLED, 0);
-	}while(dxl_get_result( ) != COMM_RXSUCCESS );
 
-
-	//clode the dynamical port.
-	dxl_terminate();
+		//clode the dynamical port.
+		dxl_terminate();
+	}
 
   return 0;
 }
@@ -409,14 +453,13 @@ void getParamVector_int(ros::NodeHandle n, string Var,vector<int> *Vec){
 	{
 		ROS_ASSERT(gainList[index].getType() == XmlRpcValue::TypeInt);
 		Vec->push_back(static_cast<int>(gainList[index]));
-	}
-    
+	} 
 }
 
 
 void getParamVector_double(ros::NodeHandle n, string Var,vector<double> *Vec){
  
-  	XmlRpcValue List;
+  XmlRpcValue List;
 	n.getParam(Var, List);
 	ROS_ASSERT(List.getType() == XmlRpcValue::TypeArray);
 
@@ -424,6 +467,5 @@ void getParamVector_double(ros::NodeHandle n, string Var,vector<double> *Vec){
 	{
 		ROS_ASSERT(List[index].getType() == XmlRpcValue::TypeDouble);
 		Vec->push_back(static_cast<double>(List[index]));
-	}
-    
+	}   
 }
