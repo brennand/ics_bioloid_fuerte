@@ -1,3 +1,0 @@
-<launch>
-    	<include file="$(find bioloid_interface)/launch/bioloid_parameter_server.launch"/>
-</launch>
