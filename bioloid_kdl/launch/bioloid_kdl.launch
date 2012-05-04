@@ -1,0 +1,12 @@
+<launch>
+  <node name="l_leg" pkg="arm_kinematics" type="arm_kinematics" output="screen">
+    <rosparam>
+      root_name: base_link
+      tip_name: L_foot_pad
+      epsilon: 0.00001
+      maxIterations: 1000
+    </rosparam>
+  </node>
+
+  
+</launch>
