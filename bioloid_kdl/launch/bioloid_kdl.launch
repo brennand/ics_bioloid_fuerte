@@ -3,7 +3,7 @@
     <rosparam>
       root_name: base_link
       tip_name: L_foot_pad
-      epsilon: 0.00001
+      epsilon: 0.01
       maxIterations: 1000
     </rosparam>
   </node>
@@ -12,7 +12,7 @@
     <rosparam>
       root_name: base_link
       tip_name: R_foot_pad
-      epsilon: 0.00001
+      epsilon: 0.01
       maxIterations: 1000
     </rosparam>
   </node>
@@ -21,7 +21,7 @@
     <rosparam>
       root_name: base_link
       tip_name: L_forearm
-      epsilon: 0.00001
+      epsilon: 0.01
       maxIterations: 1000
     </rosparam>
   </node>
@@ -30,7 +30,7 @@
     <rosparam>
       root_name: base_link
       tip_name: R_forearm
-      epsilon: 0.00001
+      epsilon: 0.01
       maxIterations: 1000
     </rosparam>
   </node>

@@ -8,7 +8,9 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/bioloid_kdl</url>
-
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="kinematics_msgs"/>
 </package>
 
 
