@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file>images/Bioloid_joint_names.jpg</file>
+    <file>images/icon.png</file>
+  </qresource>
+</RCC>

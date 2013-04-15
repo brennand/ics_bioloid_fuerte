@@ -1,0 +1,27 @@
+<package>
+  <description brief="bioloid_gui">
+
+     bioloid_gui
+
+  </description>
+  <author>Raziel</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bioloid_gui</url>
+
+
+  <rosdep name="qt4"/>
+
+  <!-- rosbuild1 -->
+  <depend package="qt_build"/>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="std_msgs"/>
+  <rosbuild2>
+    <depend package="qt_build"/>
+    <depend package="roscpp"/>
+    <depend package="sensor_msgs"/>
+  	<depend package="std_msgs"/>
+  </rosbuild2>
+  
+</package>
