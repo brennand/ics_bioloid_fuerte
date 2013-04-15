@@ -1,0 +1,35 @@
+<launch>
+
+  <node name="L_leg" pkg="arm_kinematics" type="arm_kinematics" output="screen">
+    <rosparam>
+      root_name: base_link
+      tip_name: L_foot_pad
+      epsilon: 0.005
+      maxIterations: 5000
+    </rosparam>
+  </node>
+
+  <node name="R_leg" pkg="arm_kinematics" type="arm_kinematics" output="screen">
+    <rosparam>
+      root_name: base_link
+      tip_name: R_foot_pad
+      epsilon: 0.005
+      maxIterations: 5000
+    </rosparam>
+  </node>
+
+  <node name="L_arm" pkg="arm_kinematics" type="arm_kinematics" output="screen">
+    <rosparam>
+      root_name: base_link
+      tip_name: L_forearm
+    </rosparam>
+  </node>
+
+  <node name="R_arm" pkg="arm_kinematics" type="arm_kinematics" output="screen">
+    <rosparam>
+      root_name: base_link
+      tip_name: R_forearm
+    </rosparam>
+  </node>
+
+</launch>

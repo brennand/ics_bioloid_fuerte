@@ -1,0 +1,4 @@
+string part
+sensor_msgs/JointState joint_pos
+---
+geometry_msgs/PoseStamped[] joint_position 

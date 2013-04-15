@@ -1,0 +1,20 @@
+<launch>
+ <rosparam ns="/bioloid_master/config">
+ <!-- See parameter_server.cpp for a description of these parameters -->
+  command_timeout : 15.0
+  feedback_threshold: 0.15
+  default_joint_velocity: 2
+  walk_joint_velocity: 0.7
+  fight_joint_velocity: 0.0
+  stair_joint_velocity: 0.5
+
+  starting_crouch_distance: 0.05
+  walk_debug_mode: false
+  hip_move_distance: 0.038
+  step_height: 0.015
+  step_length: 0.04
+  lean_compensation: 0.2
+  hip_compensation: 0.33
+ <!-- optimal hip compensation 0.33 but motor is not strong enough to reach this -->
+ </rosparam>
+</launch>
