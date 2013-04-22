@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
 	ros::Publisher js_pub = n.advertise<sensor_msgs::JointState> ("state", 1000);
 	ros::Publisher raw_js_pub = n.advertise<sensor_msgs::JointState> ("raw_state", 1000);
 
-	ros::Subscriber sub = n.subscribe("/bioloid_master/joints", 1000, desiredCallback);
+	ros::Subscriber sub = n.subscribe("/bioloid_interface/command", 1000, desiredCallback);
 	ros::Subscriber sub2 = n.subscribe("bioloid_msg", 1000, bioloidMsgCallback);
 
 	/******************************************************************
