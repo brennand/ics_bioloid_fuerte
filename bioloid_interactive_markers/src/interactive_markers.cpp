@@ -14,7 +14,7 @@ BioloidInteractiveMarkers::BioloidInteractiveMarkers():
 		server_("Bioloid_Interactive_Marker_Sever")
 	{
 
-	joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("/bioloid_master/joints",1000);
+	joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("/bioloid_interface/command",1000);
 //	robot_state_ = nh_.subscribe("/bioloid_interface/state", 1000, &BioloidInteractiveMarkers::robotStateCallback, this);
 
 	//Create a visual marker (objects, xyz (Position), reference frame, name, description)
