@@ -1,5 +1,7 @@
 <launch>
 
+  <node name="bioloid_kinematics" pkg="bioloid_kinematics" type="bioloid_kinematics" required="true" output="screen"/>
+
   <node name="L_leg" pkg="arm_kinematics" type="arm_kinematics" output="screen">
     <rosparam>
       root_name: base_link
