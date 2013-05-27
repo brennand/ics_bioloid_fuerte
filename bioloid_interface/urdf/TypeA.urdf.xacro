@@ -22,7 +22,7 @@
             <parent link="base_link"/>
             <child link="${prefix}_shoulder"/>
             <origin rpy="${pi_half} 0 0" xyz="${reflect*0.070} 0 0.03"/>
-            <axis xyz="0 0 ${reflect}"/>
+            <axis xyz="${reflect} 0 0"/>
             <limit effort="1000.0" lower="-${pi}" upper="${pi}" velocity="0.5"/>
         </joint>
 
@@ -38,13 +38,13 @@
             </visual>
         </link>
 
-        <joint name="${prefix}_SFE" type="revolute">
-            <parent link="${prefix}_shoulder"/>
-            <child link="${prefix}_upper_arm"/>
-            <origin rpy="0 ${reflect*-pi_half} 0" xyz="0 0 0"/>
-            <axis xyz="0 0 -1"/>
-            <limit effort="1000.0" lower="-${pi}" upper="${pi}" velocity="0.5"/>
-        </joint>
+	  <joint name="${prefix}_SFE" type="revolute">
+	    <parent link="${prefix}_shoulder"/>
+	    <child link="${prefix}_upper_arm"/>
+	    <origin rpy="0 ${reflect*-1.5} 0" xyz="0.00 0 0.0"/>
+	    <axis xyz="0 -1 0"/>
+	    <limit effort="1000.0" lower="-3.14" upper="3.14" velocity="0.5"/>
+	  </joint>
 
         <link name="${prefix}_forearm">
             <visual>
@@ -56,13 +56,13 @@
             </visual>
         </link>
 
-        <joint name="${prefix}_EB" type="revolute">
-            <parent link="${prefix}_upper_arm"/>
-            <child link="${prefix}_forearm"/>
-            <origin rpy="0 0 0" xyz="0.00 0 -0.08"/>
-            <axis xyz="0 0 -1"/>
-            <limit effort="1000.0" lower="-${pi}" upper="${pi}" velocity="0.5"/>
-        </joint>
+	  <joint name="${prefix}_EB" type="revolute">
+	    <parent link="${prefix}_upper_arm"/>
+	    <child link="${prefix}_forearm"/>
+	    <origin rpy="0 0 0" xyz="0.00 0 -0.08"/>
+	    <axis xyz="0 -1 0"/>
+	    <limit effort="1000.0" lower="-3.14" upper="3.14" velocity="0.5"/>
+	  </joint>
     </xacro:macro>
 
     <xacro:macro name="leg" params="prefix reflect">

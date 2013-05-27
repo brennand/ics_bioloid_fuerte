@@ -91,7 +91,7 @@ bool QNode::init() {
 
 	// Add your ros communications here.
 
-	chatter_publisher = n.advertise<sensor_msgs::JointState> ("/bioloid_master/joints", 1000);
+	chatter_publisher = n.advertise<sensor_msgs::JointState> ("/bioloid_interface/command", 1000);
 	chatter_sub1 = n.subscribe("/bioloid_interface/state", 1000, &QNode::jointsCallback, this);
 	chatter_sub2 = n.subscribe("/bioloid_interface/raw_state", 1000, &QNode::jointsRawCallback, this);
 	start();

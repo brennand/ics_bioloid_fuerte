@@ -13,6 +13,7 @@
 #include <kinematics_msgs/GetPositionIK.h>
 #include <kinematics_msgs/GetKinematicSolverInfo.h>
 #include <kinematics_msgs/KinematicSolverInfo.h>
+#include <urdf/model.h>
 using std::string;
 
 static const std::string IK_SERVICE = "get_ik";
